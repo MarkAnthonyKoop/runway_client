@@ -73,4 +73,4 @@ python3 -m runway_client image "test still: a single white feather on black" --n
 ls /mnt/d/cache/runway_client/results/smoke.* && echo "image roundtrip ok"
 ```
 
-End-to-end batch test belongs in the `theres_is_no_homeless` orchestrator's smoke test, not here.
+End-to-end batch test belongs in the `there_is_no_homeless` orchestrator's smoke test, not here.

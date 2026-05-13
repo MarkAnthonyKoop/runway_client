@@ -168,7 +168,7 @@ No back-edges. No `utils.py`. `__init__.py` only re-exports.
 ## 4. Next steps
 
 Concrete additions, ordered by what the in-flight music-video work
-(`bottle/`) and documentary work (`theres_is_no_homeless/`) need:
+(`bottle/`) and documentary work (`there_is_no_homeless/`) need:
 
 1. **Seed-image from a neighboring clip.** Today `image_to_video` seeds from
    a still we generated. For a music video we usually want continuity with
