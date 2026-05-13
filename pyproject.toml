@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "runway_client"
+version = "0.1.0"
+description = "Runway public API client: text_to_image → image_to_video → download, sized for filling video_composer GAP segments."
+requires-python = ">=3.10"
+dependencies = [
+    "requests",
+]
+
+[tool.setuptools]
+packages = ["runway_client"]
+
+[tool.setuptools.package-dir]
+"runway_client" = "."
