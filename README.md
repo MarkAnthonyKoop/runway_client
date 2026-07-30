@@ -10,7 +10,7 @@ Minimal client for the Runway public API, sized for one job: **filling GAP segme
 
 Pure Python; uses only `requests` (already installed). No SDK dependency — we hit the REST endpoints directly so the request shape stays visible.
 
-Results land in `/mnt/d/cache/runway_client/results/`.
+Results land in `~/.cache/runway_client/results/`.
 
 ### Auth — one-time
 
@@ -21,7 +21,7 @@ python3 -m runway_client setkey "<your_runway_api_key>"
 python3 -m runway_client authcheck   # confirms a key is discoverable
 ```
 
-The auth lookup order is **(1) `RUNWAY_API_KEY` env**, **(2) `~/.cache/runway_client/api_key`**, **(3) a `runway: <key>` line in `/mnt/c/z/personal/phones`**. Setting any one of these is enough.
+The auth lookup order is **(1) `RUNWAY_API_KEY` env**, **(2) `~/.cache/runway_client/api_key`**. Setting either is enough. (The old WSL phones-file fallback was removed 2026-07-30.)
 
 ### Single still
 
@@ -102,8 +102,8 @@ Models and ratios are kwargs on every function — override per call when Runway
 | Path | Purpose |
 | --- | --- |
 | `~/.cache/runway_client/api_key` | API key, plain text, `chmod 600` |
-| `/mnt/d/cache/runway_client/results/<id>.mp4` | Downloaded motion clip |
-| `/mnt/d/cache/runway_client/results/<id>.png` | Downloaded still |
+| `~/.cache/runway_client/results/<id>.mp4` | Downloaded motion clip |
+| `~/.cache/runway_client/results/<id>.png` | Downloaded still |
 
 Results are never auto-pruned. Drop the directory to start fresh.
 
@@ -121,7 +121,7 @@ runway_client/
 ├── api.py         requests session, base URL, headers, error type
 ├── generate.py    text_to_image / image_to_video submitters
 ├── poll.py        wait-until-terminal polling
-├── download.py    fetch outputs to /mnt/d
+├── download.py    fetch outputs to ~/.cache
 └── batch.py       fill_gap / fill_all orchestration
 ```
 
@@ -157,7 +157,7 @@ No back-edges. No `utils.py`. `__init__.py` only re-exports.
 
 ### Things to know if you're modifying this
 
-1. **Auth lookup is intentionally permissive.** The phones-file fallback exists because the user keeps all credentials in `/mnt/c/z/personal/phones` and an explicit `runway: <key>` line is cheap to add. Don't remove it.
+1. **Auth lookup.** Env var wins, then the cache file. The old WSL phones-file fallback was removed 2026-07-30 (path dead on macOS); credentials come from `credanger` now.
 2. **Polling is blocking.** Each `wait()` sleeps the calling thread. For batch jobs that's fine because we submit sequentially. If you ever want concurrency, spawn jobs first (collecting ids) then poll in parallel — don't try to thread `fill_gap` directly.
 3. **Don't pull in the `runwayml` SDK.** It looked nice at first but it pins library versions and obscures the request body. Keeping `requests` direct means a `curl --header ... --data '@payload.json'` reproduction is one copy-paste away when debugging.
 4. **Duration is quantized.** Runway turbo models only support 5s or 10s outputs. `batch._quantize_duration` rounds up. A 7s gap becomes a 10s clip; the renderer will trim it back down because the segment's timeline duration governs.
@@ -185,12 +185,9 @@ Concrete additions, ordered by what the in-flight music-video work
    siblings, `broll_filler/` (planned) should pick a provider per gap. This
    package stays Runway-only.
 4. **github-readiness:**
-   - Remove the `/mnt/c/z/personal/phones` fallback in `auth.py:18`. It
-     leaks a personal-credentials-file path; on the public version the chain
-     should be `RUNWAY_API_KEY` env → `~/.cache/runway_client/api_key` and
-     nothing else.
-   - Move `RESULTS_DIR` in `download.py:9` to `RUNWAY_CACHE` env var
-     (default `~/.cache/runway_client/results`).
+   - DONE 2026-07-30: phones fallback removed; chain is `RUNWAY_API_KEY`
+     env → `~/.cache/runway_client/api_key`. `RESULTS_DIR` now defaults to
+     `~/.cache/runway_client/results` (env-var override still a nice-to-have).
    - LICENSE, .gitignore, fixture-based test for the auth fallback chain
      (no network needed).
    - Pin `requests` in `requirements.txt`.

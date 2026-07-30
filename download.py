@@ -1,4 +1,4 @@
-"""Download Runway task outputs to /mnt/d/cache/runway_client/results/."""
+"""Download Runway task outputs to ~/.cache/runway_client/results/."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from pathlib import Path
 
 import requests
 
-RESULTS_DIR = Path("/mnt/d/cache/runway_client/results")
+RESULTS_DIR = Path("~/.cache/runway_client/results").expanduser()
 
 
 def _ext_from_url(url: str) -> str:

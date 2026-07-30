@@ -13,9 +13,9 @@ This package's single job: turn a prompt (and optionally a seed image) into a do
 
 When you're tempted to grow it, ask whether the new thing is *Runway-API-specific*. If not, put it in a sibling.
 
-## API key handling — three sources, one priority
+## API key handling — two sources, one priority
 
-`auth.get_api_key()` checks env → `~/.cache/runway_client/api_key` → grep of `/mnt/c/z/personal/phones`. The phones-file fallback is deliberate: the user keeps every credential there. **Don't remove it.** If you add a fourth source, append it at the *end* of the chain (don't reorder — explicit env overrides should always win).
+`auth.get_api_key()` checks env → `~/.cache/runway_client/api_key`. (A third WSL-era fallback grepping `/mnt/c/z/personal/phones` was removed 2026-07-30 — that path is dead on macOS; credentials live in `credanger` now.) If you add a third source, append it at the *end* of the chain (don't reorder — explicit env overrides should always win).
 
 ## The API version header is load-bearing
 
@@ -70,7 +70,17 @@ With a key (one paid API hit, ~ a few cents):
 
 ```bash
 python3 -m runway_client image "test still: a single white feather on black" --name smoke
-ls /mnt/d/cache/runway_client/results/smoke.* && echo "image roundtrip ok"
+ls ~/.cache/runway_client/results/smoke.* && echo "image roundtrip ok"
 ```
 
 End-to-end batch test belongs in the `there_is_no_homeless` orchestrator's smoke test, not here.
+
+## Notes (agentic_orchestration protocol)
+
+- 2026-07-30 — claimed & FIXED by the drum_shorts-session agent (session dir
+  `~/claude/drum_shorts`): WSL-dead paths removed. `download.py` `RESULTS_DIR` is now
+  `~/.cache/runway_client/results` (was `/mnt/d/cache/...`); `auth.py` phones-file
+  fallback (`/mnt/c/z/personal/phones`) dropped — key chain is `RUNWAY_API_KEY` env →
+  `~/.cache/runway_client/api_key`, raising `MissingKey` gracefully when both absent.
+  README/CLAUDE.md path references updated in the same change. Import + tests verified
+  on the `~/claude/.venv` Python.
